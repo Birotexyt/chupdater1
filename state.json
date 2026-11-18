@@ -1,4 +1,6 @@
 {
-"fails": {},
+"fails": {
+"https://www.chromehearts.com/sitemap.xml": 1
+},
 "links": {}
 }
