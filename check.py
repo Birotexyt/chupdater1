@@ -8,9 +8,8 @@ import requests
 
 NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "")
 WATCH_URLS = [u.strip() for u in (
-    os.environ.get("WATCH_URLS") or "https://www.chromehearts.com/sitemap.xml"
+    os.environ.get("WATCH_URLS") or "https://www.chromehearts.com/"
 ).split(",") if u.strip()]
-STATE_FILE = "state.json"
 STATE_FILE = "state.json"
 FAIL_ALERT_AT = 6   # consecutive failed runs (~30 min) before alerting once
 HEADERS = {
@@ -55,12 +54,21 @@ def extract_links(url):
         return locs
     parts = url.split("/", 3)
     origin = parts[0] + "//" + parts[2]
+    # Menu-style pages: keep only same-site top-level links like /baccarat or /socks.
+    # HTML_MAX_DEPTH=0 disables the depth filter.
+    max_depth = int(os.environ.get("HTML_MAX_DEPTH") or "1")
     links = set()
     for h in HREF_RE.findall(text):
         if h.startswith("/"):
             h = origin + h
-        if h.startswith("http"):
-            links.add(h.split("#")[0])
+        if not h.startswith(origin):
+            continue
+        h = h.split("#")[0].split("?")[0].rstrip("/")
+        path = h[len(origin):].strip("/")
+        depth = len(path.split("/")) if path else 0
+        if depth == 0 or (max_depth and depth > max_depth):
+            continue
+        links.add(h)
     return links
 
 
