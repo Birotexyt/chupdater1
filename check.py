@@ -8,7 +8,8 @@ import requests
 
 NTFY_TOPIC = os.environ.get("NTFY_TOPIC", "")
 WATCH_URLS = [u.strip() for u in os.environ.get(
-    "WATCH_URLS", "https://www.chromehearts.com/sitemap.xml"
+ WATCH_URLS = [u.strip() for u in (
+    os.environ.get("WATCH_URLS") or "https://www.chromehearts.com/sitemap.xml"
 ).split(",") if u.strip()]
 STATE_FILE = "state.json"
 FAIL_ALERT_AT = 6   # consecutive failed runs (~30 min) before alerting once
